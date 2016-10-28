@@ -7,10 +7,16 @@
 //
 
 #import "XBTextView.h"
-#import "XBExtension.h"
 #import "Masonry.h"
 
 #define textViewTextChange @"textViewTextChange"
+//移除字符串中的空格
+//把strNeedChange中的currentStr替换成repalceStr (NSString)
+#define replaceString_currentStr_To_repalceStr_For_strNeedChange(currentStr,repalceStr,strNeedChange)\
+[strNeedChange stringByReplacingOccurrencesOfString:currentStr withString:repalceStr]
+
+//字符串是否为空
+#define StringIsEmpty(str) ([str isKindOfClass:[NSNull class]] || str == nil || [str length] < 1 ? YES : NO )
 
 @interface XBTextView ()<UITextViewDelegate>
 
@@ -33,8 +39,11 @@
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    if (self=[super initWithCoder:aDecoder]) {
-        
+    if (self=[super initWithCoder:aDecoder])
+    {
+        [self initParamsFirst];
+        [self setupSubviews];
+        [self initParamsLast];
     }
     return self;
 }
@@ -42,18 +51,23 @@
 {
     if (self==[super init])
     {
-        [self initParams];
-        
+        [self initParamsFirst];
         [self setupSubviews];
+        [self initParamsLast];
     }
     return self;
 }
 
--(void)initParams
+-(void)initParamsFirst
 {
+    self.backgroundColor=[UIColor whiteColor];
     self.textCountLabelHeight=13;
-    
+}
+
+-(void)initParamsLast
+{
     self.maxTextCount=200;
+    self.placeHolderTextColor=[[UIColor grayColor] colorWithAlphaComponent:0.7];
 }
 
 -(void)setupSubviews
@@ -65,7 +79,7 @@
     self.textCountLabel=[[UILabel alloc] init];
     [self addSubview:self.textCountLabel];
     self.textCountLabel.font=[UIFont systemFontOfSize:13];
-    self.textCountLabel.textColor=ColorRGBA(80, 80, 80, 0.5);
+    self.textCountLabel.textColor=[UIColor colorWithRed:80/255.0 green:80/255.0 blue:80/255.0 alpha:0.5];
     
     self.clearBtn=[UIButton buttonWithType:UIButtonTypeCustom];
     [self addSubview:self.clearBtn];
@@ -98,7 +112,6 @@
 #pragma mark - 点击事件
 -(void)clearBtnClick:(UIButton *)button
 {
-    XBFlog(@"");
     self.text=@"";
 }
 
@@ -129,7 +142,7 @@
     self.textView.text=text;
     self.textView.textColor=[UIColor blackColor];
     
-    if ([text isNullOrEmpty])
+    if (StringIsEmpty(text))
     {
         [self setClearBtnStateHidden];
     }
@@ -186,7 +199,7 @@
         textView.textColor=self.placeHolderTextColor;
     }
     
-    if ([self.textView.text isNullOrEmpty] || [self.textView.text isEqualToString:self.placeHolder]) {
+    if (StringIsEmpty(self.textView.text) || [self.textView.text isEqualToString:self.placeHolder]) {
         [self setClearBtnStateHidden];
     }
     
@@ -199,7 +212,7 @@
         textView.text=[textView.text substringToIndex:self.maxTextCount];
     }
     
-    if ([self.textView.text isNullOrEmpty]) {
+    if (StringIsEmpty(self.textView.text)) {
         [self setClearBtnStateHidden];
     }
     else
@@ -226,7 +239,8 @@
 -(BOOL)isNoContent
 {
     //去除空格
-    NSString *textViewText=[self.textView.text removeEmptyStr];
+//    NSString *textViewText=[self.textView.text removeEmptyStr];
+    NSString *textViewText=replaceString_currentStr_To_repalceStr_For_strNeedChange(@" ", @"", self.textView.text);
     
     if ([textViewText isEqualToString:self.placeHolder] || [textViewText isEqualToString:@""] || textViewText.length<1)
     {
