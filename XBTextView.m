@@ -152,9 +152,13 @@
 
 -(NSString *)text
 {
-    return self.textView.text;
+    NSString *content = self.textView.text;
+    if ([content isEqualToString:self.placeHolder])
+    {
+        return @"";
+    }
+    return content;
 }
-
 
 #pragma mark - 其他方法
 -(void)refreshTextUI
